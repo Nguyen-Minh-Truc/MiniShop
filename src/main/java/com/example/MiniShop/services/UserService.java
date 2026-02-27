@@ -1,10 +1,10 @@
 package com.example.MiniShop.services;
 
 import com.example.MiniShop.models.request.UserReqCreate;
-import com.example.MiniShop.models.response.UserResponseDto;
+import com.example.MiniShop.models.response.UserDto;
 import java.util.List;
 
 public interface UserService {
-  List<UserResponseDto> fetchAllUser();
-  UserResponseDto addUser(UserReqCreate userReq);
+  List<UserDto> fetchAllUser();
+  UserDto addUser(UserReqCreate userReq);
 }

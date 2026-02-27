@@ -1,13 +1,13 @@
 package com.example.MiniShop.mapper;
 
 import com.example.MiniShop.models.entity.User;
-import com.example.MiniShop.models.response.UserResponseDto;
+import com.example.MiniShop.models.response.UserDto;
 
 public class UserMapper {
-  public static UserResponseDto toDto(User user) {
+  public static UserDto toDto(User user) {
     if (user == null)
       return null;
-    UserResponseDto dto = new UserResponseDto();
+    UserDto dto = new UserDto();
     dto.setId(user.getId());
     dto.setUsername(user.getUsername());
     dto.setEmail(user.getEmail());

@@ -1,7 +1,7 @@
 package com.example.MiniShop.controllers;
 
 import com.example.MiniShop.models.request.UserReqCreate;
-import com.example.MiniShop.models.response.UserResponseDto;
+import com.example.MiniShop.models.response.UserDto;
 import com.example.MiniShop.services.impl.UserServiceImpl;
 import com.example.MiniShop.util.annotation.ApiMessage;
 import java.net.http.HttpResponse;
@@ -25,13 +25,13 @@ public class UserController {
   @GetMapping
   @ApiMessage("Lấy tất cả người dùng. ")
   public ResponseEntity<?> getMethodName() {
-    List<UserResponseDto> users = this.userServiceImpl.fetchAllUser();
+    List<UserDto> users = this.userServiceImpl.fetchAllUser();
     return ResponseEntity.ok(users);
   }
 
   @PostMapping
   public ResponseEntity<?> postMethodName(@RequestBody UserReqCreate userReq) {
-    UserResponseDto userRep = this.userServiceImpl.addUser(userReq);
+    UserDto userRep = this.userServiceImpl.addUser(userReq);
     return ResponseEntity.status(HttpStatus.CREATED).body(userRep);
   }
 }
