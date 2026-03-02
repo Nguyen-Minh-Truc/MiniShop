@@ -32,13 +32,11 @@ public class GlobalExceptionHandler {
 
     BindingResult result = ex.getBindingResult();
     List<FieldError> fieldErrors = result.getFieldErrors();
-
     ApiResponse<Object> res = new ApiResponse<>();
     res.setStatusCode(HttpStatus.BAD_REQUEST.value());
     res.setError("Bad Request");
     List<String> errors =
         fieldErrors.stream().map(FieldError::getDefaultMessage).toList();
-
     res.setMessage(errors.size() > 1 ? errors : errors.get(0));
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
   }

@@ -65,9 +65,6 @@ public class CategoryMapper {
           if (product.getCategory() != null)
             pDto.setCategoryName(product.getCategory().getName());
 
-          if (product.getSupplier() != null)
-            pDto.setSupplierName(product.getSupplier().getName());
-
           productDtos.add(pDto);
         }
       }

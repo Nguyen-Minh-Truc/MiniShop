@@ -3,9 +3,10 @@ package com.example.MiniShop.controllers;
 import com.example.MiniShop.exception.custom.NotFoundException;
 import com.example.MiniShop.models.entity.Category;
 import com.example.MiniShop.models.request.CategoryReq;
+import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.CategoryDetailDto;
 import com.example.MiniShop.models.response.CategoryRepDto;
-import com.example.MiniShop.services.impl.CategoryServiceImpl;
+import com.example.MiniShop.services.CategoryService;
 import com.example.MiniShop.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
 
@@ -28,17 +29,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
 public class CategoryController {
-  private final CategoryServiceImpl categoryService;
+  private final CategoryService categoryService;
 
   @GetMapping
   @ApiMessage("Lấy danh sách thành Công.")
-  public ResponseEntity<?> getAllCategories(@Filter Specification<Category> spec, Pageable pageable) {
+  public ResponseEntity<ApiResponsePagination> getAllCategories(@Filter Specification<Category> spec, Pageable pageable) {
     return ResponseEntity.ok(categoryService.fetchAllCategory(spec,  pageable));
   }
 
   @PostMapping
   @ApiMessage("Tạo Loại thành Công.")
-  public ResponseEntity<?>
+  public ResponseEntity<CategoryRepDto>
   createCategory(@Valid @RequestBody CategoryReq categoryReq) {
     CategoryRepDto dto = categoryService.addCategory(categoryReq);
     return ResponseEntity.status(HttpStatus.CREATED).body(dto);
@@ -53,7 +54,7 @@ public class CategoryController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<?> putCategoryById(@PathVariable("id") long id,
+  public ResponseEntity<CategoryDetailDto> putCategoryById(@PathVariable("id") long id,
                                            @RequestBody CategoryReq categoryReq)
       throws NotFoundException {
 

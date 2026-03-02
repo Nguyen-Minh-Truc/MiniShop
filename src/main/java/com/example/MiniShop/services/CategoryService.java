@@ -6,7 +6,6 @@ import com.example.MiniShop.models.request.CategoryReq;
 import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.CategoryDetailDto;
 import com.example.MiniShop.models.response.CategoryRepDto;
-import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

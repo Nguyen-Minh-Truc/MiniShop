@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "purchase_orders")
+@Table(name = "import_receipts")
 @Getter
 @Setter
 public class PurchaseOrder {
@@ -20,6 +20,10 @@ public class PurchaseOrder {
   private LocalDateTime createdAt;
 
   private boolean completed = false;
+
+   @ManyToOne
+    @JoinColumn(name = "supplier_id")
+    private Supplier supplier;
 
   @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL)
   private List<PurchaseOrderItem> items;

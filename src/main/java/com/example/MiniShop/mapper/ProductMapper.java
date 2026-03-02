@@ -28,9 +28,7 @@ public class ProductMapper {
         dto.setCategoryName(product.getCategory().getName());
     }
 
-    if (product.getSupplier() != null) {
-        dto.setSupplierName(product.getSupplier().getName());
-    }
+   
 
     return dto;
 }

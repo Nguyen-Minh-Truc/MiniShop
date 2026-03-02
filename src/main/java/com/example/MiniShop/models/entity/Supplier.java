@@ -17,7 +17,6 @@ public class Supplier {
 
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private long id;
 
-  @NotBlank(message = "Tên người dùng không được để trống.")
   private String name;
 
   private String phone;
