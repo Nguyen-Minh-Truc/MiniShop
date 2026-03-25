@@ -3,7 +3,6 @@ package com.example.MiniShop.mapper;
 import com.example.MiniShop.models.entity.Product;
 import com.example.MiniShop.models.response.ProductRepDto;
 
-import java.math.BigDecimal;
 
 import org.springframework.stereotype.Component;
 
@@ -19,7 +18,7 @@ public class ProductMapper {
     dto.setDescription(product.getDescription());
 
    
-    dto.setPrice(BigDecimal.valueOf(product.getPrice()));
+    dto.setPrice((product.getPrice()));
 
     dto.setStock(product.getStock());
     dto.setActive(product.isActive());

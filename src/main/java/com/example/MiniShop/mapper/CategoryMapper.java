@@ -59,7 +59,7 @@ public class CategoryMapper {
           pDto.setId(product.getId());
           pDto.setName(product.getName());
           pDto.setDescription(product.getDescription());
-          pDto.setPrice(BigDecimal.valueOf(product.getPrice()));
+          pDto.setPrice(product.getPrice());
           pDto.setStock(product.getStock());
           pDto.setActive(product.isActive());
           if (product.getCategory() != null)

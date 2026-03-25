@@ -2,8 +2,6 @@ package com.example.MiniShop.models.response;
 
 import java.util.List;
 
-import com.example.MiniShop.models.entity.Product;
-
 import lombok.Getter;
 import lombok.Setter;
 

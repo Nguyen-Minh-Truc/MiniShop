@@ -1,7 +1,7 @@
 package com.example.MiniShop.models.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Getter;
@@ -13,20 +13,20 @@ import lombok.Setter;
 @Setter
 public class Product {
 
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private long id;
 
-  @NotBlank(message = "Tên sản phẩm không được để trống.") private String name;
+  private String name;
 
-  @NotBlank(message = "Mô tả sản phẩm không được để trống.")
   private String description;
 
-  private Double price;
+  private BigDecimal price;
 
-  private Integer stock;
+  private int stock;
 
   private boolean active = true;
 
   private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
 
   @ManyToOne @JoinColumn(name = "category_id") private Category category;
 
@@ -43,5 +43,10 @@ public class Product {
   @PrePersist
   public void prePersist() {
     this.createdAt = LocalDateTime.now();
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+    this.updatedAt = LocalDateTime.now();
   }
 }
