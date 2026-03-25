@@ -7,5 +7,5 @@ import com.example.MiniShop.models.entity.ProductImage;
 
 @Repository
 public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
-    
+
 }

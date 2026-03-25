@@ -7,6 +7,7 @@ import com.example.MiniShop.services.impl.S3ServiceImpl;
 import com.example.MiniShop.util.annotation.ApiMessage;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,16 @@ public class UploadController {
       throws IOException, NotFoundException, ConflictException {
     UploadFileDTO uploadFileDTO = this.s3Service.uploadMultiple(file);
     return ResponseEntity.ok().body(uploadFileDTO);
+  }
+
+  @PostMapping("/upload-multiple/product")
+  public ResponseEntity<List<UploadFileDTO>>
+  uploadMultiple(@RequestParam("files") List<MultipartFile> files)
+      throws Exception {
+
+    List<UploadFileDTO> result = s3Service.uploadMultiple(files);
+
+    return ResponseEntity.ok(result);
   }
 
   @DeleteMapping("/delete/product")

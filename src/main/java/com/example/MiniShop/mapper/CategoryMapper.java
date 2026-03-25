@@ -6,8 +6,6 @@ import com.example.MiniShop.models.request.CategoryReq;
 import com.example.MiniShop.models.response.CategoryDetailDto;
 import com.example.MiniShop.models.response.CategoryRepDto;
 import com.example.MiniShop.models.response.ProductRepDto;
-
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,13 +16,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CategoryMapper {
 
-  private ProductMapper productMapper;
-
   public CategoryRepDto toDto(Category category) {
     if (category == null)
       return null;
-
     CategoryRepDto dto = new CategoryRepDto();
+    dto.setId(category.getId());
     dto.setName(category.getName());
     dto.setDescription(category.getDescription());
     dto.setActive(category.isActive());
@@ -46,6 +42,7 @@ public class CategoryMapper {
       return null;
 
     CategoryDetailDto dto = new CategoryDetailDto();
+    dto.setId(category.getId());
     dto.setName(category.getName());
     dto.setDescription(category.getDescription());
     dto.setActive(category.isActive());
@@ -62,9 +59,18 @@ public class CategoryMapper {
           pDto.setPrice(product.getPrice());
           pDto.setStock(product.getStock());
           pDto.setActive(product.isActive());
-          if (product.getCategory() != null)
-            pDto.setCategoryName(product.getCategory().getName());
+          pDto.setCreatedAt(product.getCreatedAt());
+          pDto.setUpdatedAt(product.getUpdatedAt());
 
+          if (product.getCategory() != null) {
+            pDto.setCategoryId(product.getCategory().getId());
+            pDto.setCategoryName(product.getCategory().getName());
+          }
+
+          if (product.getSeller() != null) {
+            pDto.setSellerId(product.getSeller().getId());
+            pDto.setSellerName(product.getSeller().getUsername());
+          }
           productDtos.add(pDto);
         }
       }

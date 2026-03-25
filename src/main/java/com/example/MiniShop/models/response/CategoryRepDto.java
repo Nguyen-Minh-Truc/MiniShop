@@ -8,9 +8,10 @@ import lombok.Setter;
 @Setter
 public class CategoryRepDto {
   
+  private long id;
+  
   private String name;
 
- 
   private String description;
 
   private boolean active = true;

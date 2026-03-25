@@ -60,7 +60,6 @@ public class SupplierController {
   updateSupplier(@PathVariable long id,
                  @RequestBody @Valid SupplierReq supplierReq)
       throws NotFoundException, ConflictException {
-
     SupplierRepDto updatedSupplier =
         this.service.updateSupplierByID(id, supplierReq);
 

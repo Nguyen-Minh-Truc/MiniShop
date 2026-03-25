@@ -1,25 +1,100 @@
 package com.example.MiniShop.services.impl;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
+import com.amazonaws.services.kms.model.NotFoundException;
+import com.example.MiniShop.mapper.ProductMapper;
+import com.example.MiniShop.models.entity.Category;
 import com.example.MiniShop.models.entity.Product;
 import com.example.MiniShop.models.entity.ProductImage;
+import com.example.MiniShop.models.entity.User;
+import com.example.MiniShop.models.request.CreateProductReq;
+import com.example.MiniShop.models.response.ApiResponsePagination;
+import com.example.MiniShop.models.response.ApiResponsePagination.Meta;
+import com.example.MiniShop.models.response.ProductRepDto;
+import com.example.MiniShop.repository.CategoryRepository;
 import com.example.MiniShop.repository.ProductImageRepository;
 import com.example.MiniShop.repository.ProductRepository;
-
+import com.example.MiniShop.repository.UserRepository;
+import com.example.MiniShop.services.ProductService;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ProductServiceImpl {
-    private final ProductRepository productRepository;
-    private final ProductImageRepository imageRepository;
-    private final S3ServiceImpl s3Service;
+public class ProductServiceImpl implements ProductService {
+  private final ProductRepository productRepository;
+  private final ProductMapper productMapper;
+  private final ProductImageRepository productImageRepository;
+  private final CategoryRepository categoryRepository;
+  private final UserRepository userRepository;
 
-   
+  @Override
+  public ApiResponsePagination fetchAll(Specification<Product> spec,
+                                        Pageable pageable) {
+    Page<Product> products = this.productRepository.findAll(spec, pageable);
+    Meta meta = new Meta();
+
+    meta.setPageCurrent(pageable.getPageNumber() + 1);
+    meta.setPageSize(pageable.getPageSize());
+    meta.setPages(products.getTotalPages());
+    meta.setTotal(products.getTotalElements());
+
+    ApiResponsePagination apiResponsePagination = new ApiResponsePagination();
+
+    apiResponsePagination.setMeta(meta);
+    apiResponsePagination.setResult(
+        productMapper.toDtoList(products.getContent()));
+
+    return apiResponsePagination;
+  }
+
+  @Transactional
+  @Override
+  public ProductRepDto create(CreateProductReq req) {
+
+    // 1. Validate
+    Category category =
+        categoryRepository.findById(req.getCategoryId())
+            .orElseThrow(() -> new NotFoundException("Category not found"));
+
+    User seller =
+        userRepository.findById(req.getSellerId())
+            .orElseThrow(() -> new NotFoundException("Seller not found"));
+
+    // 2. Create product
+    Product product = new Product();
+    product.setName(req.getName());
+    product.setDescription(req.getDescription());
+    product.setPrice(req.getPrice());
+    product.setActive(true);
+    product.setCategory(category);
+    product.setSeller(seller);
+
+    product = productRepository.save(product);
+
+    // 3. Save images
+    List<ProductImage> images = new ArrayList<>();
+
+    if (req.getImageUrls() != null) {
+      for (String url : req.getImageUrls()) {
+        ProductImage img = new ProductImage();
+        img.setImageUrl(url);
+        img.setProduct(product);
+        images.add(img);
+      }
+    }
+
+    productImageRepository.saveAll(images);
+    // 4. Map DTO
+    ProductRepDto dto = productMapper.toDto(product);
+    dto.setImageUrls(images.stream().map(ProductImage::getImageUrl).toList());
+
+    return dto;
+  }
 }
