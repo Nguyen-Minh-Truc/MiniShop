@@ -5,21 +5,18 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateProductReq {
+public class UpdateProductReq {
 
-  @NotBlank(message = "Name is required") private String name;
+  @NotBlank private String name;
 
   private String description;
 
-  @NotNull(message = "Category is required") private Long categoryId;
-
-  @NotNull(message = "Seller is required") private Long sellerId;
-
-  private List<String> imageUrls;
+  @NotNull @Positive private BigDecimal price;
+  private int stock;
+  @NotNull private Long categoryId;
 }

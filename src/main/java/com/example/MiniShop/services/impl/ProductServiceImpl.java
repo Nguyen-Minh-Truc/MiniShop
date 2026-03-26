@@ -1,12 +1,13 @@
 package com.example.MiniShop.services.impl;
 
-import com.amazonaws.services.kms.model.NotFoundException;
+import com.example.MiniShop.exception.custom.NotFoundException;
 import com.example.MiniShop.mapper.ProductMapper;
 import com.example.MiniShop.models.entity.Category;
 import com.example.MiniShop.models.entity.Product;
 import com.example.MiniShop.models.entity.ProductImage;
 import com.example.MiniShop.models.entity.User;
 import com.example.MiniShop.models.request.CreateProductReq;
+import com.example.MiniShop.models.request.UpdateProductReq;
 import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.ApiResponsePagination.Meta;
 import com.example.MiniShop.models.response.ProductRepDto;
@@ -56,7 +57,7 @@ public class ProductServiceImpl implements ProductService {
 
   @Transactional
   @Override
-  public ProductRepDto create(CreateProductReq req) {
+  public ProductRepDto create(CreateProductReq req) throws NotFoundException {
 
     // 1. Validate
     Category category =
@@ -68,13 +69,7 @@ public class ProductServiceImpl implements ProductService {
             .orElseThrow(() -> new NotFoundException("Seller not found"));
 
     // 2. Create product
-    Product product = new Product();
-    product.setName(req.getName());
-    product.setDescription(req.getDescription());
-    product.setPrice(req.getPrice());
-    product.setActive(true);
-    product.setCategory(category);
-    product.setSeller(seller);
+    Product product = this.productMapper.toEntity(req, category, seller);
 
     product = productRepository.save(product);
 
@@ -94,6 +89,43 @@ public class ProductServiceImpl implements ProductService {
     // 4. Map DTO
     ProductRepDto dto = productMapper.toDto(product);
     dto.setImageUrls(images.stream().map(ProductImage::getImageUrl).toList());
+
+    return dto;
+  }
+
+  @Override
+  public ProductRepDto getById(long id) throws NotFoundException {
+
+    Product product = productRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("Product not found"));
+
+    ProductRepDto dto = this.productMapper.toDto(product);
+    return dto;
+  }
+
+  @Transactional
+  @Override
+  public ProductRepDto update(Long id, UpdateProductReq req)
+      throws NotFoundException {
+
+    Product product = productRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("Product not found"));
+
+    Category category =
+        categoryRepository.findById(req.getCategoryId())
+            .orElseThrow(() -> new NotFoundException("Category not found"));
+
+    product.setName(req.getName());
+    product.setDescription(req.getDescription());
+    product.setStock(req.getStock());
+    product.setPrice(req.getPrice());
+    product.setCategory(category);
+
+    product.setUpdatedAt(LocalDateTime.now());
+    product = productRepository.save(product);
+
+    // 5. Map DTO
+    ProductRepDto dto = productMapper.toDto(product);
 
     return dto;
   }

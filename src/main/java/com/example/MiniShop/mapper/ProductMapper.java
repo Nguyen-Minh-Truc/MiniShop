@@ -36,6 +36,11 @@ public class ProductMapper {
       dto.setSellerId(product.getSeller().getId());
       dto.setSellerName(product.getSeller().getUsername());
     }
+
+    if (product.getImages() != null && !product.getImages().isEmpty()) {
+      dto.setImageUrls(
+          product.getImages().stream().map(ProductImage::getImageUrl).toList());
+    }
     return dto;
   }
 
@@ -43,35 +48,16 @@ public class ProductMapper {
     return products.stream().map(this::toDto).collect(Collectors.toList());
   }
 
+    public Product toEntity(CreateProductReq req, Category category,
+                            User seller) {
+      Product product = new Product();
 
+      product.setName(req.getName());
+      product.setDescription(req.getDescription());
+      product.setActive(true);
+      product.setCategory(category);
+      product.setSeller(seller);
 
-//   public Product toEntity(CreateProductReq req, Category category,
-//                           User seller) {
-//     Product product = new Product();
-
-//     product.setName(req.getName());
-//     product.setDescription(req.getDescription());
-//     product.setPrice(req.getPrice());
-//     product.setActive(true);
-
-//     product.setCategory(category);
-//     product.setSeller(seller);
-
-//     // map images
-//     if (req.getImageUrls() != null) {
-//       List<ProductImage> images = req.getImageUrls()
-//                                       .stream()
-//                                       .map(url -> {
-//                                         ProductImage img = new ProductImage();
-//                                         img.setImageUrl(url);
-//                                         img.setProduct(product);
-//                                         return img;
-//                                       })
-//                                       .toList();
-
-//       product.setImages(images);
-//     }
-
-//     return product;
-//   }
+      return product;
+    }
 }

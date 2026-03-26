@@ -2,6 +2,7 @@ package com.example.MiniShop.mapper;
 
 import com.example.MiniShop.models.entity.Category;
 import com.example.MiniShop.models.entity.Product;
+import com.example.MiniShop.models.entity.ProductImage;
 import com.example.MiniShop.models.request.CategoryReq;
 import com.example.MiniShop.models.response.CategoryDetailDto;
 import com.example.MiniShop.models.response.CategoryRepDto;
@@ -71,6 +72,13 @@ public class CategoryMapper {
             pDto.setSellerId(product.getSeller().getId());
             pDto.setSellerName(product.getSeller().getUsername());
           }
+          if (product.getImages() != null && !product.getImages().isEmpty()) {
+            pDto.setImageUrls(product.getImages()
+                                  .stream()
+                                  .map(ProductImage::getImageUrl)
+                                  .toList());
+          }
+
           productDtos.add(pDto);
         }
       }
