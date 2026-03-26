@@ -20,6 +20,8 @@ public class UploadController {
 
   private final S3ServiceImpl s3Service;
   @PostMapping("/upload/product")
+
+  // gửi 1 ảnh
   @ApiMessage("upload File thành công. ")
   public ResponseEntity<?>
   uploadFile(@RequestParam(name = "file", required = false) MultipartFile file)
@@ -28,6 +30,7 @@ public class UploadController {
     return ResponseEntity.ok().body(uploadFileDTO);
   }
 
+  // gửi nhiều ảnh
   @PostMapping("/upload-multiple/product")
   public ResponseEntity<List<UploadFileDTO>>
   uploadMultiple(@RequestParam("files") List<MultipartFile> files)
@@ -38,10 +41,11 @@ public class UploadController {
     return ResponseEntity.ok(result);
   }
 
-  @DeleteMapping("/delete/product")
+  // xoá ảnh
+  @DeleteMapping("/delete/product/{id}")
   public ResponseEntity<String>
-  deleteFile(@RequestParam(value = "url", required = false) String fileUrl)
-      throws URISyntaxException {
+  deleteFile(@RequestParam(value = "url", required = false) String fileUrl,
+             @PathVariable("id") long id) throws URISyntaxException {
     try {
       boolean deleted = this.s3Service.deleteFileByUrl(fileUrl);
       if (deleted) {

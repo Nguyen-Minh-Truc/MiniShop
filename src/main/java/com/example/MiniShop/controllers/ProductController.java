@@ -57,4 +57,6 @@ public class ProductController {
 
     return ResponseEntity.ok(productSer.update(id, req));
   }
+
+  
 }

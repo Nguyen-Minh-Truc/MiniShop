@@ -1,7 +1,9 @@
 package com.example.MiniShop.models.entity;
 
+import com.example.MiniShop.util.enums.PurchaseOrderStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Getter;
@@ -19,15 +21,15 @@ public class PurchaseOrder {
 
   private LocalDateTime createdAt;
 
-  private boolean completed = false;
+  private PurchaseOrderStatus completed;
 
-   @ManyToOne
-    @JoinColumn(name = "supplier_id")
-    private Supplier supplier;
+  @ManyToOne @JoinColumn(name = "supplier_id") private Supplier supplier;
 
   @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL)
   private List<PurchaseOrderItem> items;
 
+  private BigDecimal totalPrice;
+  
   @PrePersist
   public void prePersist() {
     this.createdAt = LocalDateTime.now();

@@ -34,6 +34,7 @@ public class ProductServiceImpl implements ProductService {
   private final ProductImageRepository productImageRepository;
   private final CategoryRepository categoryRepository;
   private final UserRepository userRepository;
+  private final S3ServiceImpl s3ServiceImpl;
 
   @Override
   public ApiResponsePagination fetchAll(Specification<Product> spec,
@@ -124,9 +125,23 @@ public class ProductServiceImpl implements ProductService {
     product.setUpdatedAt(LocalDateTime.now());
     product = productRepository.save(product);
 
-    // 5. Map DTO
     ProductRepDto dto = productMapper.toDto(product);
 
     return dto;
+  }
+
+  @Transactional
+  public void deleteImage(Long imageId) throws Exception {
+
+    ProductImage img = productImageRepository.findById(imageId).orElseThrow(
+        () -> new NotFoundException("Image không tồn tại"));
+
+    s3ServiceImpl.deleteFileByUrl(img.getImageUrl());
+
+    Product product = img.getProduct();
+    if (product != null && product.getImages() != null) {
+      product.getImages().remove(img);
+    }
+    this.productImageRepository.delete(img);
   }
 }

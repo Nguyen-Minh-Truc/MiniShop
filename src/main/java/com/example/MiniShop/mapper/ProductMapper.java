@@ -27,6 +27,7 @@ public class ProductMapper {
     dto.setCreatedAt(product.getCreatedAt());
     dto.setUpdatedAt(product.getUpdatedAt());
 
+
     if (product.getCategory() != null) {
       dto.setCategoryId(product.getCategory().getId());
       dto.setCategoryName(product.getCategory().getName());

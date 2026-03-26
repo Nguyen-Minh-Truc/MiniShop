@@ -1,5 +1,7 @@
 package com.example.MiniShop.models.entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,7 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "purchase_order_items")
+@Table(name = "import_receipts_items")
 @Getter
 @Setter
 public class PurchaseOrderItem {
@@ -25,5 +27,5 @@ public class PurchaseOrderItem {
   @ManyToOne @JoinColumn(name = "product_id") private Product product;
 
   private int quantity;
-  private double costPrice;
+  private BigDecimal costPrice;
 }

@@ -9,7 +9,6 @@ import com.example.MiniShop.exception.custom.NotFoundException;
 import com.example.MiniShop.models.response.UploadFileDTO;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -110,21 +109,12 @@ public class S3ServiceImpl {
         .toList();
   }
 
-  
-
-  // Xoá file theo URL upload
   public boolean deleteFileByUrl(String fileUrl) throws IOException {
-    // 1. Lấy key từ URL
     String key = extractKeyFromUrl(fileUrl);
-
-    // 2. Kiểm tra object tồn tại
     if (!s3Client.doesObjectExist(bucketName, key)) {
       return false;
     }
-
-    // 3. Xoá object
     s3Client.deleteObject(bucketName, key);
-
     return true;
   }
 
@@ -133,4 +123,6 @@ public class S3ServiceImpl {
     // => key = folder/file.png
     return fileUrl.substring(fileUrl.indexOf(".com/") + 5);
   }
+
+
 }
