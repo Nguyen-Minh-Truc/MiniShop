@@ -2,7 +2,6 @@ package com.example.MiniShop.models.entity;
 
 import com.example.MiniShop.util.enums.PurchaseOrderStatus;
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,7 +28,6 @@ public class PurchaseOrder {
   private List<PurchaseOrderItem> items;
 
   private BigDecimal totalPrice;
-  
   @PrePersist
   public void prePersist() {
     this.createdAt = LocalDateTime.now();
