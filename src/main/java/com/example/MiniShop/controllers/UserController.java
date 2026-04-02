@@ -1,14 +1,17 @@
 package com.example.MiniShop.controllers;
 
+import com.example.MiniShop.models.entity.User;
 import com.example.MiniShop.models.request.UserReqCreate;
+import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.UserDto;
 import com.example.MiniShop.services.impl.UserServiceImpl;
 import com.example.MiniShop.util.annotation.ApiMessage;
-import java.net.http.HttpResponse;
-import java.util.List;
+import com.turkraft.springfilter.boot.Filter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,13 +27,16 @@ public class UserController {
 
   @GetMapping
   @ApiMessage("Lấy tất cả người dùng. ")
-  public ResponseEntity<?> getMethodName() {
-    List<UserDto> users = this.userServiceImpl.fetchAllUser();
+  public ResponseEntity<?> getMethodName(@Filter Specification<User> spec,
+                                         Pageable page) {
+    ApiResponsePagination users = this.userServiceImpl.fetchAllUser(spec, page);
     return ResponseEntity.ok(users);
   }
 
   @PostMapping
-  public ResponseEntity<?> postMethodName(@RequestBody UserReqCreate userReq) {
+  @ApiMessage("Thêm người dùng thành công. ")
+  public ResponseEntity<?>
+  postMethodName(@RequestBody @Valid UserReqCreate userReq) {
     UserDto userRep = this.userServiceImpl.addUser(userReq);
     return ResponseEntity.status(HttpStatus.CREATED).body(userRep);
   }

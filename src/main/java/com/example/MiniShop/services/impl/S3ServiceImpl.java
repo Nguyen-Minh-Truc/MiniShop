@@ -40,7 +40,6 @@ public class S3ServiceImpl {
       throw new ConflictException("File không hợp lệ. Chỉ những file: " +
                                   allowedExtensions);
     }
-    // đổi tên folder
     String folder = "product";
     String key = folder + "/" + fileName;
     ObjectMetadata metadata = new ObjectMetadata();
@@ -123,6 +122,5 @@ public class S3ServiceImpl {
     // => key = folder/file.png
     return fileUrl.substring(fileUrl.indexOf(".com/") + 5);
   }
-
 
 }
