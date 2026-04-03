@@ -13,5 +13,7 @@ public interface UserService {
                                      Pageable pageable);
   UserDto addUser(UserReqCreate userReq);
 
-  UserDto fetchById(long id) throws NotFoundException; 
+  UserDto fetchById(long id);
+
+  User fetchByEmail(String email);
 }

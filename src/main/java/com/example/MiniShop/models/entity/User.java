@@ -1,5 +1,6 @@
 package com.example.MiniShop.models.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -36,6 +37,9 @@ public class User {
   private String phone;
 
   private boolean active;
+
+  @Column(columnDefinition = "MEDIUMTEXT")
+  private String refreshToken;
 
   @OneToMany(mappedBy = "seller", fetch = FetchType.EAGER)
   private List<Product> products;
