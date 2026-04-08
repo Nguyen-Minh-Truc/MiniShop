@@ -57,11 +57,11 @@ public class UserServiceImpl implements UserService {
   }
 
     public UserDto register(UserReqRegister userReq) throws ConflictException{
-      if (userReq.getPassword().equals(userReq.getConfirmPassword())) {
+      if (!userReq.getPassword().equals(userReq.getConfirmPassword())) {
         throw new ConflictException("Nhập lại mật khẩu không đúng. ");
       }
     User user = new User();
-    user.setUsername(userReq.getUsername());
+    user.setUsername(userReq.getFullname());
     user.setPassword(userReq.getPassword());
     user.setEmail(userReq.getEmail());
     user.setPassword(this.passwordEncoder.encode(userReq.getPassword()));
@@ -70,6 +70,7 @@ public class UserServiceImpl implements UserService {
     UserDto userRep = this.userMapper.toDto(savedUser);
     return userRep;
   }
+
 
   @Override
   public UserDto fetchById(long id) throws NotFoundException {

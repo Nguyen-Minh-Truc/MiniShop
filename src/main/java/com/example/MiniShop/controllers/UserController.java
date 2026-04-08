@@ -4,6 +4,7 @@ import com.example.MiniShop.models.entity.User;
 import com.example.MiniShop.models.request.UserReqCreate;
 import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.UserDto;
+import com.example.MiniShop.services.UserService;
 import com.example.MiniShop.services.impl.UserServiceImpl;
 import com.example.MiniShop.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/users")
 public class UserController {
-  private final UserServiceImpl userServiceImpl;
+  private final UserService userServiceImpl;
 
   @GetMapping
   @ApiMessage("Lấy tất cả người dùng. ")

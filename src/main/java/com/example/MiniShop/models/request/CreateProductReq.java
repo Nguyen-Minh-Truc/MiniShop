@@ -19,7 +19,5 @@ public class CreateProductReq {
 
   @NotNull(message = "Category is required") private Long categoryId;
 
-  @NotNull(message = "Seller is required") private Long sellerId;
-
   private List<String> imageUrls;
 }

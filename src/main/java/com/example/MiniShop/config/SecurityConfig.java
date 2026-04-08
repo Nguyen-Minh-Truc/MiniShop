@@ -39,13 +39,13 @@ public class SecurityConfig {
                                   -> oauth2.jwt(Customizer.withDefaults())
                                          .authenticationEntryPoint(
                                              customAuthenticationEntryPoint))
-        .exceptionHandling(
-            exceptions
-            -> exceptions
-                   .authenticationEntryPoint(
-                       new BearerTokenAuthenticationEntryPoint()) 
-                   .accessDeniedHandler(
-                       new BearerTokenAccessDeniedHandler()))
+        // .exceptionHandling(
+        //     exceptions
+        //     -> exceptions
+        //            .authenticationEntryPoint(
+        //                new BearerTokenAuthenticationEntryPoint()) 
+        //            .accessDeniedHandler(
+        //                new BearerTokenAccessDeniedHandler()))
 
         .sessionManagement((sessionManagement)
                                -> sessionManagement.sessionCreationPolicy(

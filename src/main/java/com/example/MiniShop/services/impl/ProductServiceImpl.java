@@ -16,6 +16,8 @@ import com.example.MiniShop.repository.ProductImageRepository;
 import com.example.MiniShop.repository.ProductRepository;
 import com.example.MiniShop.repository.UserRepository;
 import com.example.MiniShop.services.ProductService;
+import com.example.MiniShop.util.SecurityUtil;
+
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -65,10 +67,10 @@ public class ProductServiceImpl implements ProductService {
         categoryRepository.findById(req.getCategoryId())
             .orElseThrow(() -> new NotFoundException("Category not found"));
 
-    User seller =
-        userRepository.findById(req.getSellerId())
-            .orElseThrow(() -> new NotFoundException("Seller not found"));
-
+    String email = SecurityUtil.getCurrentUserLogin().isPresent() == true
+                         ? SecurityUtil.getCurrentUserLogin().get()
+                         : null;
+    User seller = this.userRepository.findByEmail(email);
     // 2. Create product
     Product product = this.productMapper.toEntity(req, category, seller);
 

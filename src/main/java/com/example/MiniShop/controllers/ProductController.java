@@ -6,6 +6,7 @@ import com.example.MiniShop.models.request.CreateProductReq;
 import com.example.MiniShop.models.request.UpdateProductReq;
 import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.ProductRepDto;
+import com.example.MiniShop.services.ProductService;
 import com.example.MiniShop.services.impl.ProductServiceImpl;
 import com.example.MiniShop.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
@@ -27,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
 public class ProductController {
-  private final ProductServiceImpl productSer;
+  private final ProductService productSer;
   @GetMapping
   @ApiMessage("Lấy danh sách thành Công.")
   public ResponseEntity<ApiResponsePagination>

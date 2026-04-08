@@ -52,7 +52,6 @@ public class PurchaseOrderMapper {
     PurchaseOrder po = new PurchaseOrder();
     po.setSupplier(supplier);
     po.setCompleted(PurchaseOrderStatus.PENDING);
-    po.setCreatedBy("SYSTEM");
 
     BigDecimal total = BigDecimal.ZERO;
 

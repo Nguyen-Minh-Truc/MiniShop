@@ -38,8 +38,9 @@ public class AuthController {
   private final SecurityUtil securityUtil;
   private final UserServiceImpl userServiceImpl;
 
-  @Value("${hoidanit.jwt.refresh-token-validity-in-seconds}")
+  @Value("${mt.jwt.refresh-token-validity-in-seconds}")
   private long refreshTokenExpiration;
+
   @PostMapping("/login")
   public ResponseEntity<?> login(@Valid @RequestBody LoginReq loginReq) {
 
@@ -59,7 +60,7 @@ public class AuthController {
     User currentUser =
         this.userServiceImpl.fetchByEmail(loginReq.getUsername());
     UserLogin userLogin = new UserLogin(
-        currentUser.getId(), currentUser.getUsername(), currentUser.getEmail());
+        currentUser.getId(), currentUser.getEmail(),currentUser.getUsername());
 
     //  Tạo access Token
     String access_token =

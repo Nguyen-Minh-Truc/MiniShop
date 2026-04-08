@@ -11,6 +11,7 @@ import com.example.MiniShop.models.response.ProductRepDto;
 import com.example.MiniShop.models.response.PurchaseOrderResDetail;
 import com.example.MiniShop.models.response.PurchaseOrderResponse;
 import com.example.MiniShop.models.response.SupplierRepDto;
+import com.example.MiniShop.services.PurchaseOrderService;
 import com.example.MiniShop.services.impl.PurchaseOrderServiceImpl;
 import com.example.MiniShop.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
@@ -33,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/purchase-orders")
 @RequiredArgsConstructor
 public class PurchaseOrderController {
-  private final PurchaseOrderServiceImpl purchaseOrderSer;
+  private final PurchaseOrderService purchaseOrderSer;
 
   @GetMapping
   @ApiMessage("Lấy danh sách thành Công.")

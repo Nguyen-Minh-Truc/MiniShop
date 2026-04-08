@@ -1,5 +1,6 @@
 package com.example.MiniShop.models.entity;
 
+import com.example.MiniShop.util.SecurityUtil;
 import com.example.MiniShop.util.enums.PurchaseOrderStatus;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -28,8 +29,12 @@ public class PurchaseOrder {
   private List<PurchaseOrderItem> items;
 
   private BigDecimal totalPrice;
+
   @PrePersist
   public void prePersist() {
+    this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
+                         ? SecurityUtil.getCurrentUserLogin().get()
+                         : null;
     this.createdAt = LocalDateTime.now();
   }
 }
