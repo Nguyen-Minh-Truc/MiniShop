@@ -2,6 +2,7 @@ package com.example.MiniShop.util;
 
 import com.example.MiniShop.models.response.LoginRes;
 import com.example.MiniShop.models.response.LoginRes.UserLogin;
+import com.example.MiniShop.models.response.UserToken;
 import com.nimbusds.jose.util.Base64;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -39,23 +40,32 @@ public class SecurityUtil {
   private long refreshTokenExpiration;
 
   public String createAccessToken(String email, UserLogin dto) {
+
+    UserToken userToken = new UserToken();
+    userToken.setId(dto.getId());
+    userToken.setName(dto.getName());
+    userToken.setEmail(dto.getEmail());
+
     Instant now = Instant.now();
     Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
-
     JwtClaimsSet claims = JwtClaimsSet.builder()
                               .issuedAt(now)
                               .expiresAt(validity)
                               .subject(email)
-                              .claim("user", dto)
+                              .claim("user", userToken)
                               .build();
 
     JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
-
     return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims))
         .getTokenValue();
   }
 
   public String createRefreshToken(String email, LoginRes dto) {
+
+    UserToken userToken = new UserToken();
+    userToken.setId(dto.getUserLogin().getId());
+    userToken.setName(dto.getUserLogin().getName());
+    userToken.setEmail(dto.getUserLogin().getEmail());
     Instant now = Instant.now();
     Instant validity =
         now.plus(this.refreshTokenExpiration, ChronoUnit.SECONDS);
@@ -65,7 +75,7 @@ public class SecurityUtil {
                               .issuedAt(now)
                               .expiresAt(validity)
                               .subject(email)
-                              .claim("user", dto.getUserLogin())
+                              .claim("user", userToken)
                               .build();
 
     JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();

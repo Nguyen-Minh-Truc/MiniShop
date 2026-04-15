@@ -62,11 +62,11 @@ public class RoleController {
     return ResponseEntity.ok(dto);
   }
 
-  @DeleteMapping("/{id}")
-  @ApiMessage("Xoá vai trò thành công.")
-  public ResponseEntity<Void> deleteRole(@PathVariable("id") long id)
-      throws NotFoundException {
-    roleService.deleteById(id);
-    return ResponseEntity.noContent().build();
-  }
+  // @DeleteMapping("/{id}")
+  // @ApiMessage("Xoá vai trò thành công.")
+  // public ResponseEntity<Void> deleteRole(@PathVariable("id") long id)
+  //     throws NotFoundException {
+  //   roleService.deleteById(id);
+  //   return ResponseEntity.noContent().build();
+  // }
 }

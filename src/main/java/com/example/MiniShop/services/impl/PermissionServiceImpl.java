@@ -4,16 +4,13 @@ import com.example.MiniShop.exception.custom.InvalidException;
 import com.example.MiniShop.exception.custom.NotFoundException;
 import com.example.MiniShop.mapper.PermissionMapper;
 import com.example.MiniShop.models.entity.Permission;
-import com.example.MiniShop.models.entity.Role;
 import com.example.MiniShop.models.request.PermissionReq;
 import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.ApiResponsePagination.Meta;
 import com.example.MiniShop.models.response.PermissionDto;
 import com.example.MiniShop.repository.PermissionRepository;
-import com.example.MiniShop.repository.RoleRepository;
 import com.example.MiniShop.services.PermissionService;
 import jakarta.transaction.Transactional;
-import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,7 +22,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PermissionServiceImpl implements PermissionService {
   private final PermissionRepository permissionRepository;
-  private final RoleRepository roleRepository;
   private final PermissionMapper permissionMapper;
 
   @Override

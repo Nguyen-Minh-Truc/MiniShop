@@ -59,7 +59,7 @@ public class AuthController {
     User currentUser =
         this.userServiceImpl.fetchByEmail(loginReq.getUsername());
     UserLogin userLogin = new UserLogin(
-        currentUser.getId(), currentUser.getEmail(),currentUser.getUsername());
+        currentUser.getId(), currentUser.getEmail(),currentUser.getUsername(), currentUser.getRole());
 
     //  Tạo access Token
     String access_token =
@@ -99,7 +99,7 @@ public class AuthController {
 
     User currentUser = this.userServiceImpl.fetchByEmail(email);
     UserLogin userLogin = new UserLogin(
-        currentUser.getId(), currentUser.getEmail(), currentUser.getUsername());
+        currentUser.getId(), currentUser.getEmail(), currentUser.getUsername(), currentUser.getRole());
     return ResponseEntity.ok().body(userLogin);
   }
 
@@ -117,7 +117,7 @@ public class AuthController {
     LoginRes resLoginDTO = new LoginRes();
     User currentUser = this.userServiceImpl.fetchByEmail(email);
     UserLogin userLogin = new UserLogin(
-        currentUser.getId(), currentUser.getEmail(), currentUser.getUsername());
+        currentUser.getId(), currentUser.getEmail(), currentUser.getUsername(), currentUser.getRole());
 
     String access_token = this.securityUtil.createAccessToken(email, userLogin);
     resLoginDTO.setAccessToken(access_token);

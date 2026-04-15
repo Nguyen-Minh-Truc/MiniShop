@@ -8,4 +8,5 @@ import com.example.MiniShop.models.entity.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product>{
 
+
 }

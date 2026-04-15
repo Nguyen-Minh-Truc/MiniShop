@@ -14,4 +14,5 @@ public class UserDto {
   private String phone;
   private boolean active;
   private LocalDateTime createdAt;
+  private RoleRes role;
 }

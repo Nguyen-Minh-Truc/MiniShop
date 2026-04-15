@@ -1,25 +1,22 @@
 package com.example.MiniShop.models.request;
 
-import com.example.MiniShop.util.annotation.UniqueEmail;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UserReqCreate {
+public class UserReqUpdate {
   @NotBlank(message = "Tên người dùng không được để trống.")
   private String username;
 
   @NotBlank(message = "Email không được để trống.")
-  @UniqueEmail
   private String email;
 
-  @NotBlank(message = "Mật khẩu không được để trống.") private String password;
+  private String password;
 
-  @NotBlank(message = "Địa chỉ không được để trống.") private String address;
+  private String address;
 
-  @NotBlank(message = "Số điện thoại không được để trống.")
   private String phone;
 
   private Boolean active;

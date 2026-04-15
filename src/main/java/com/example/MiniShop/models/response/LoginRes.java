@@ -1,5 +1,6 @@
 package com.example.MiniShop.models.response;
 
+import com.example.MiniShop.models.entity.Role;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,11 +17,13 @@ public class LoginRes {
     private long id;
     private String email;
     private String name;
+    private Role role;
 
-    public UserLogin(long id, String email, String name) {
+    public UserLogin(long id, String email, String name, Role role) {
       this.id = id;
       this.email = email;
       this.name = name;
+      this.role = role;
     }
 
     public UserLogin() {}

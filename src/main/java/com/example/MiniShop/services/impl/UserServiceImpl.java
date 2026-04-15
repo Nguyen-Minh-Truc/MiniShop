@@ -1,22 +1,28 @@
 package com.example.MiniShop.services.impl;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import com.example.MiniShop.exception.custom.ConflictException;
+import com.example.MiniShop.exception.custom.NotFoundException;
 import com.example.MiniShop.mapper.UserMapper;
+import com.example.MiniShop.models.entity.Role;
 import com.example.MiniShop.models.entity.User;
 import com.example.MiniShop.models.request.UserReqCreate;
 import com.example.MiniShop.models.request.UserReqRegister;
+import com.example.MiniShop.models.request.UserReqUpdate;
 import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.ApiResponsePagination.Meta;
 import com.example.MiniShop.models.response.UserDto;
+import com.example.MiniShop.repository.ProductRepository;
+import com.example.MiniShop.repository.RoleRepository;
 import com.example.MiniShop.repository.UserRepository;
 import com.example.MiniShop.services.UserService;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +30,8 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
+  private final RoleRepository roleRepository;
+  private final ProductRepository productRepository;
 
   public ApiResponsePagination fetchAllUser(Specification<User> specification,
                                             Pageable pageable) {
@@ -42,24 +50,33 @@ public class UserServiceImpl implements UserService {
     return result;
   }
 
-  public UserDto addUser(UserReqCreate userReq) {
-    User user = new User();
-    user.setUsername(userReq.getUsername());
-    user.setPassword(userReq.getPassword());
-    user.setEmail(userReq.getEmail());
-    user.setPassword(this.passwordEncoder.encode(userReq.getPassword()));
+  @Override
+  public UserDto addUser(UserReqCreate userReq)
+      throws NotFoundException, ConflictException {
+    if (userRepository.existsByEmail(userReq.getEmail())) {
+      throw new ConflictException("Email already exists");
+    }
 
-    user.setActive(true);
+    User user = userMapper.toEntity(userReq);
+    user.setPassword(passwordEncoder.encode(userReq.getPassword()));
+    user.setAddress(userReq.getAddress());
+    user.setPhone(userReq.getPhone());
+    user.setActive(userReq.getActive() == null || userReq.getActive());
+    Long roleId = userReq.getRoleId();
+    if (roleId != null) {
+      Role role = roleRepository.findById(roleId).orElseThrow(
+          () -> new NotFoundException("Role not found with id: " + roleId));
+      user.setRole(role);
+    }
+
     User savedUser = this.userRepository.save(user);
-    UserDto userRep = this.userMapper.toDto(savedUser);
-
-    return userRep;
+    return this.userMapper.toDto(savedUser);
   }
 
-    public UserDto register(UserReqRegister userReq) throws ConflictException{
-      if (!userReq.getPassword().equals(userReq.getConfirmPassword())) {
-        throw new ConflictException("Nhập lại mật khẩu không đúng. ");
-      }
+  public UserDto register(UserReqRegister userReq) throws ConflictException {
+    if (!userReq.getPassword().equals(userReq.getConfirmPassword())) {
+      throw new ConflictException("Nhập lại mật khẩu không đúng. ");
+    }
     User user = new User();
     user.setUsername(userReq.getFullname());
     user.setPassword(userReq.getPassword());
@@ -71,12 +88,45 @@ public class UserServiceImpl implements UserService {
     return userRep;
   }
 
-
   @Override
   public UserDto fetchById(long id) throws NotFoundException {
-    throw new UnsupportedOperationException("Unimplemented method 'fetchById'");
+    User user = userRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("User not found with id: " + id));
+    return userMapper.toDto(user);
   }
 
+  @Override
+  @Transactional
+  public UserDto updateUser(long id, UserReqUpdate userReq)
+      throws NotFoundException, ConflictException {
+    User user = userRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("User not found with id: " + id));
+
+    if (!user.getEmail().equals(userReq.getEmail()) &&
+        userRepository.existsByEmail(userReq.getEmail())) {
+      throw new ConflictException("Email already exists");
+    }
+
+    user.setUsername(userReq.getUsername());
+    user.setEmail(userReq.getEmail());
+    user.setAddress(userReq.getAddress());
+    user.setPhone(userReq.getPhone());
+    if (userReq.getActive() != null) {
+      user.setActive(userReq.getActive());
+    }
+    if (userReq.getPassword() != null && !userReq.getPassword().isBlank()) {
+      user.setPassword(passwordEncoder.encode(userReq.getPassword()));
+    }
+    Long roleId = userReq.getRoleId();
+    if (roleId != null) {
+      Role role = roleRepository.findById(roleId).orElseThrow(
+          () -> new NotFoundException("Role not found with id: " + roleId));
+      user.setRole(role);
+    }
+
+    User savedUser = userRepository.save(user);
+    return userMapper.toDto(savedUser);
+  }
 
   @Override
   public User fetchByEmail(String email) {

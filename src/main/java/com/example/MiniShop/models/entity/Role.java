@@ -1,6 +1,7 @@
 package com.example.MiniShop.models.entity;
 
 import com.example.MiniShop.util.SecurityUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -18,6 +19,10 @@ public class Role {
   private String name;
 
   private String description;
+
+  @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+  @JsonIgnore
+  private List<User> user;
 
   private LocalDateTime createdAt;
 
