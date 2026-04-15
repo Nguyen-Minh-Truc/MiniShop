@@ -27,9 +27,8 @@ public class UserDetailImpl implements UserDetailsService {
     if (user == null) {
       throw new UsernameNotFoundException("tài khoản không tồn tại");
     }
-    
     return new User(
         user.getEmail(), user.getPassword(),
-        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+        Collections.singletonList(new SimpleGrantedAuthority("USER")));
   }
 }
