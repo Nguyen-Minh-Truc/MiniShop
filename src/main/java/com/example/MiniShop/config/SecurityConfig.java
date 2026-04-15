@@ -28,9 +28,13 @@ public class SecurityConfig {
               CustomAuthenticationEntryPoint customAuthenticationEntryPoint)
       throws Exception {
     http.csrf(c -> c.disable())
+        .cors(Customizer.withDefaults())
         .authorizeHttpRequests(
             authorize
-            -> authorize.requestMatchers("/", "/api/v1/auth/login","/api/v1/auth/register", "/api/v1/auth/refresh")
+            -> authorize
+                   .requestMatchers(
+                       "/", "/api/v1/auth/login", "/api/v1/auth/register",
+                       "/api/v1/auth/refresh")
                    .permitAll()
                    .anyRequest()
                    .authenticated())
@@ -43,7 +47,7 @@ public class SecurityConfig {
         //     exceptions
         //     -> exceptions
         //            .authenticationEntryPoint(
-        //                new BearerTokenAuthenticationEntryPoint()) 
+        //                new BearerTokenAuthenticationEntryPoint())
         //            .accessDeniedHandler(
         //                new BearerTokenAccessDeniedHandler()))
 

@@ -3,7 +3,6 @@ package com.example.MiniShop.controllers;
 import com.example.MiniShop.exception.custom.ConflictException;
 import com.example.MiniShop.models.entity.User;
 import com.example.MiniShop.models.request.LoginReq;
-import com.example.MiniShop.models.request.UserReqCreate;
 import com.example.MiniShop.models.request.UserReqRegister;
 import com.example.MiniShop.models.response.LoginRes;
 import com.example.MiniShop.models.response.LoginRes.UserLogin;

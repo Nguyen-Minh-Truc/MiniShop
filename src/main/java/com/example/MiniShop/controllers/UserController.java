@@ -5,7 +5,6 @@ import com.example.MiniShop.models.request.UserReqCreate;
 import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.UserDto;
 import com.example.MiniShop.services.UserService;
-import com.example.MiniShop.services.impl.UserServiceImpl;
 import com.example.MiniShop.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
