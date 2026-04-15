@@ -81,6 +81,13 @@ public class RoleServiceImpl implements RoleService {
     return roleMapper.toDto(savedRole);
   }
 
+  @Override
+  public void deleteById(long id) throws NotFoundException {
+    Role role = roleRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("Role not found with id: " + id));
+    roleRepository.deleteById(id);
+  }
+
   private List<Permission> resolvePermissions(List<Long> permissionIds) {
     if (permissionIds == null || permissionIds.isEmpty()) {
       return new ArrayList<>();

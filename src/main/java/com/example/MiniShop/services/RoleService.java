@@ -17,4 +17,6 @@ public interface RoleService {
   RoleDto getById(long id) throws NotFoundException;
 
   RoleDto update(long id, RoleReq roleReq) throws NotFoundException, InvalidException;
+
+  void deleteById(long id) throws NotFoundException;
 }

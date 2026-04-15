@@ -19,4 +19,6 @@ public interface PermissionService {
 
   PermissionDto update(long id, PermissionReq permissionReq)
       throws NotFoundException, InvalidException;
+
+  void deleteById(long id) throws NotFoundException;
 }
