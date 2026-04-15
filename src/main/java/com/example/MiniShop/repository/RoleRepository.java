@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface RoleRepository
     extends JpaRepository<Role, Long>, JpaSpecificationExecutor<Role> {
-        boolean existsByName(String name);
-        boolean existsByNameAndIdNot(String name, long id);
-    }
+  boolean existsByName(String name);
+  boolean existsByNameAndIdNot(String name, long id);
+  Role findByName(String name);
+}
