@@ -36,11 +36,15 @@ public class Order {
 
   private String shipping_Phone;
 
+  private String method_payment;
+
   private BigDecimal totalPrice;
 
   private LocalDateTime createdAt;
 
   private LocalDateTime updatedAt;
+
+  private LocalDateTime expiredAt;
 
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
   private List<OrderDetail> items;
