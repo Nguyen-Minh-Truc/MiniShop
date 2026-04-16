@@ -3,6 +3,7 @@ package com.example.MiniShop.services.impl;
 import com.example.MiniShop.exception.custom.ConflictException;
 import com.example.MiniShop.exception.custom.NotFoundException;
 import com.example.MiniShop.mapper.PurchaseOrderMapper;
+import com.example.MiniShop.models.entity.Inventory;
 import com.example.MiniShop.models.entity.Product;
 import com.example.MiniShop.models.entity.PurchaseOrder;
 import com.example.MiniShop.models.entity.PurchaseOrderItem;
@@ -12,7 +13,7 @@ import com.example.MiniShop.models.request.PurchaseOrderRequest;
 import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.ApiResponsePagination.Meta;
 import com.example.MiniShop.models.response.PurchaseOrderResDetail;
-import com.example.MiniShop.models.response.PurchaseOrderResponse;
+import com.example.MiniShop.repository.InventoryRepository;
 import com.example.MiniShop.repository.ProductRepository;
 import com.example.MiniShop.repository.PurchaseOrderItemRepository;
 import com.example.MiniShop.repository.PurchaseOrderRepository;
@@ -36,11 +37,14 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
+  private static final BigDecimal PRICE_MULTIPLIER = new BigDecimal("1.2");
+
   private final PurchaseOrderRepository purchaseOrderRepository;
   private final PurchaseOrderItemRepository purchaseOrderItemRepository;
   private final PurchaseOrderMapper purchaseOrderMapper;
   private final SupplierRepository supplierRepository;
   private final ProductRepository productRepository;
+  private final InventoryRepository inventoryRepository;
 
   @Override
   public ApiResponsePagination
@@ -218,5 +222,92 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     purchaseOrderRepository.save(po);
 
     return purchaseOrderMapper.toDtoDetail(po);
+  }
+
+  @Override
+  @Transactional
+  public PurchaseOrderResDetail confirmPurchaseOrder(Long id)
+      throws NotFoundException, ConflictException {
+    PurchaseOrder po = purchaseOrderRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("Phiếu nhập không tồn tại."));
+
+    if (po.getStatus() != PurchaseOrderStatus.PENDING) {
+      throw new ConflictException(
+          "Chỉ phiếu nhập đang PENDING mới được xác nhận.");
+    }
+
+    po.setStatus(PurchaseOrderStatus.CONFIRMED);
+    PurchaseOrder updatedPo = this.purchaseOrderRepository.save(po);
+    return this.purchaseOrderMapper.toDtoDetail(updatedPo);
+  }
+
+  @Override
+  @Transactional
+  public PurchaseOrderResDetail cancelPurchaseOrder(Long id)
+      throws NotFoundException, ConflictException {
+    PurchaseOrder po = purchaseOrderRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("Phiếu nhập không tồn tại."));
+
+    if (po.getStatus() != PurchaseOrderStatus.PENDING) {
+      throw new ConflictException("Chỉ phiếu nhập đang PENDING mới được hủy.");
+    }
+
+    po.setStatus(PurchaseOrderStatus.CANCELED);
+    PurchaseOrder updatedPo = this.purchaseOrderRepository.save(po);
+    return this.purchaseOrderMapper.toDtoDetail(updatedPo);
+  }
+
+  @Override
+  @Transactional
+  public PurchaseOrderResDetail completePurchaseOrder(Long id)
+      throws NotFoundException, ConflictException {
+    PurchaseOrder po = purchaseOrderRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("Phiếu nhập không tồn tại."));
+
+    if (po.getStatus() != PurchaseOrderStatus.CONFIRMED) {
+      throw new ConflictException(
+          "Chỉ phiếu nhập đã được xác nhận mới được hoàn thành.");
+    }
+
+    if (po.getItems() == null || po.getItems().isEmpty()) {
+      throw new ConflictException("Phiếu nhập không có sản phẩm để nhập kho.");
+    }
+
+    for (PurchaseOrderItem item : po.getItems()) {
+      if (item.getQuantity() <= 0) {
+        throw new ConflictException("Số lượng sản phẩm phải lớn hơn 0.");
+      }
+      if (item.getCostPrice() == null ||
+          item.getCostPrice().compareTo(BigDecimal.ZERO) <= 0) {
+        throw new ConflictException("Giá nhập phải lớn hơn 0.");
+      }
+
+      Product product = item.getProduct();
+      if (product == null) {
+        throw new NotFoundException("Sản phẩm trong phiếu nhập không tồn tại.");
+      }
+
+      Inventory inventory =
+          this.inventoryRepository.findByProductId(product.getId())
+              .orElseGet(() -> {
+                Inventory newInventory = new Inventory();
+                newInventory.setProduct(product);
+                newInventory.setStock(0);
+                newInventory.setReserved_stock(0);
+                return newInventory;
+              });
+
+      inventory.setStock(inventory.getStock() + item.getQuantity());
+      this.inventoryRepository.save(inventory);
+
+      BigDecimal newSellingPrice =
+          item.getCostPrice().multiply(PRICE_MULTIPLIER);
+      product.setPrice(newSellingPrice);
+      this.productRepository.save(product);
+    }
+
+    po.setStatus(PurchaseOrderStatus.SUCCESS);
+    PurchaseOrder updatedPo = this.purchaseOrderRepository.save(po);
+    return this.purchaseOrderMapper.toDtoDetail(updatedPo);
   }
 }

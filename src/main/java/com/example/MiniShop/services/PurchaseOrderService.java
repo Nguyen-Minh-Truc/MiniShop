@@ -6,7 +6,6 @@ import com.example.MiniShop.models.entity.PurchaseOrder;
 import com.example.MiniShop.models.request.PurchaseOrderRequest;
 import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.PurchaseOrderResDetail;
-import com.example.MiniShop.models.response.PurchaseOrderResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -20,5 +19,14 @@ public interface PurchaseOrderService {
   public PurchaseOrderResDetail getById(Long id) throws NotFoundException;
 
   public PurchaseOrderResDetail update(PurchaseOrderRequest req, Long id)
+      throws NotFoundException, ConflictException;
+
+  public PurchaseOrderResDetail confirmPurchaseOrder(Long id)
+      throws NotFoundException, ConflictException;
+
+  public PurchaseOrderResDetail cancelPurchaseOrder(Long id)
+      throws NotFoundException, ConflictException;
+
+  public PurchaseOrderResDetail completePurchaseOrder(Long id)
       throws NotFoundException, ConflictException;
 }
