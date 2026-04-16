@@ -140,14 +140,9 @@ public class OrderServiceImpl implements OrderService {
     String payment = req.getPaymentMethod() == null
                          ? ""
                          : req.getPaymentMethod().trim().toUpperCase();
-    if (!"CASH".equals(payment)) {
-      throw new ConflictException(
-          "Hiện chỉ hỗ trợ phương thức thanh toán CASH.");
-    }
-
     order.setShipping_address(req.getShippingAddress());
     order.setShipping_Phone(req.getShippingPhone());
-    order.setMethod_payment("CASH");
+    order.setMethod_payment(payment);
     order.setStatus(OrderStatus.SHIPPING);
     order.setExpiredAt(null);
 
