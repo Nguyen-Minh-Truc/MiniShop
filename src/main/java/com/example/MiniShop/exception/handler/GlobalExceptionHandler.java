@@ -19,7 +19,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
+  // 401 Authentication
   @ExceptionHandler(value =
                         {
                             UsernameNotFoundException.class,
