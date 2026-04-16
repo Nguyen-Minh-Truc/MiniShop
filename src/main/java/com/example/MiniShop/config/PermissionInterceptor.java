@@ -28,6 +28,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
     String requestURL = request.getRequestURI();
     String method = request.getMethod();
 
+
     // check permission
     String email = SecurityUtil.getCurrentUserLogin().isPresent()
                        ? SecurityUtil.getCurrentUserLogin().get()
@@ -40,7 +41,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
         Role role = user.getRole();
         if (role != null) {
           List<Permission> permissions = role.getPermissions();
-          boolean isAllow = permissions.stream().allMatch(
+          boolean isAllow = permissions.stream().anyMatch(
               item
               -> item.getApiPath().equals(path) &&
                      item.getMethod().equals(method));
