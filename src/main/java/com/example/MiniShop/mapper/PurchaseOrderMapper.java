@@ -31,7 +31,7 @@ public class PurchaseOrderMapper {
     res.setId(po.getId());
     res.setCreatedBy(po.getCreatedBy());
     res.setCreatedAt(po.getCreatedAt());
-    res.setStatus(po.getCompleted());
+    res.setStatus(po.getStatus());
     res.setTotalPrice(po.getTotalPrice());
     if (po.getSupplier() != null) {
       res.setSupplierName(po.getSupplier().getName());
@@ -51,7 +51,7 @@ public class PurchaseOrderMapper {
 
     PurchaseOrder po = new PurchaseOrder();
     po.setSupplier(supplier);
-    po.setCompleted(PurchaseOrderStatus.PENDING);
+    po.setStatus(PurchaseOrderStatus.PENDING);
 
     BigDecimal total = BigDecimal.ZERO;
 
@@ -91,7 +91,7 @@ public class PurchaseOrderMapper {
   public PurchaseOrderResDetail toDtoDetail(PurchaseOrder po) {
     PurchaseOrderResDetail pord = new PurchaseOrderResDetail();
     pord.setId(po.getId());
-    pord.setCompleted(po.getCompleted());
+    pord.setCompleted(po.getStatus());
     pord.setCreatedAt(po.getCreatedAt());
     pord.setCreatedBy(po.getCreatedBy());
     pord.setSupplier(po.getSupplier());

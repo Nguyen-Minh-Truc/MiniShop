@@ -125,7 +125,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     PurchaseOrder po = purchaseOrderRepository.findById(id).orElseThrow(
         () -> new NotFoundException("Phiếu nhập không tồn tại."));
 
-    if (po.getCompleted() != PurchaseOrderStatus.PENDING) {
+    if (po.getStatus() != PurchaseOrderStatus.PENDING) {
       throw new ConflictException(
           "Phiếu nhập đã hoàn thành, không thể chỉnh sửa.");
     }

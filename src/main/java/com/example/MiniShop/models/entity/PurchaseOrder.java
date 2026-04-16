@@ -21,7 +21,8 @@ public class PurchaseOrder {
 
   private LocalDateTime createdAt;
 
-  private PurchaseOrderStatus completed;
+  @Enumerated(EnumType.STRING)
+  private PurchaseOrderStatus status;
 
   @ManyToOne @JoinColumn(name = "supplier_id") private Supplier supplier;
 

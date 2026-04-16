@@ -120,7 +120,6 @@ public class ProductServiceImpl implements ProductService {
 
     product.setName(req.getName());
     product.setDescription(req.getDescription());
-    product.setStock(req.getStock());
     product.setPrice(req.getPrice());
     product.setCategory(category);
 

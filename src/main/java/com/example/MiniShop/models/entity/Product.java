@@ -21,7 +21,8 @@ public class Product {
 
   private BigDecimal price;
 
-  private int stock;
+  @OneToOne(mappedBy = "product", fetch = FetchType.LAZY)
+  private Inventory inventory;
 
   private boolean active = true;
 
@@ -44,7 +45,7 @@ public class Product {
   public void prePersist() {
     this.createdAt = LocalDateTime.now();
   }
-   @PreUpdate
+  @PreUpdate
   public void preUpdate() {
     this.updatedAt = LocalDateTime.now();
   }

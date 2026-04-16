@@ -1,7 +1,6 @@
 package com.example.MiniShop.services.impl;
 
-import com.example.MiniShop.services.UserService;
-import java.util.Collection;
+
 import java.util.Collections;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

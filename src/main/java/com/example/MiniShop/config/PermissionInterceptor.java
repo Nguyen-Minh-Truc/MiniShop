@@ -27,7 +27,6 @@ public class PermissionInterceptor implements HandlerInterceptor {
         HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
     String requestURL = request.getRequestURI();
     String method = request.getMethod();
-    System.out.println("👉 Interceptor: preHandle");
 
     // check permission
     String email = SecurityUtil.getCurrentUserLogin().isPresent()
@@ -41,7 +40,6 @@ public class PermissionInterceptor implements HandlerInterceptor {
         Role role = user.getRole();
         if (role != null) {
           List<Permission> permissions = role.getPermissions();
-
           boolean isAllow = permissions.stream().allMatch(
               item
               -> item.getApiPath().equals(path) &&

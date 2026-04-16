@@ -32,16 +32,11 @@ public class Permission {
 
   private String updatedBy;
 
-  @ManyToMany(mappedBy = "permissions")
-  @JsonIgnore
-  private List<Role> roles;
+  @ManyToMany(mappedBy = "permissions") @JsonIgnore private List<Role> roles;
 
   @PrePersist
   public void prePersist() {
     this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
-                         ? SecurityUtil.getCurrentUserLogin().get()
-                         : null;
-                         this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
                          ? SecurityUtil.getCurrentUserLogin().get()
                          : null;
     this.createdAt = LocalDateTime.now();

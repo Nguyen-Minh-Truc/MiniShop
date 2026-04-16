@@ -58,7 +58,6 @@ public class CategoryMapper {
           pDto.setName(product.getName());
           pDto.setDescription(product.getDescription());
           pDto.setPrice(product.getPrice());
-          pDto.setStock(product.getStock());
           pDto.setActive(product.isActive());
           pDto.setCreatedAt(product.getCreatedAt());
           pDto.setUpdatedAt(product.getUpdatedAt());
