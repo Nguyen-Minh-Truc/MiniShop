@@ -22,7 +22,9 @@ public class Cart {
   @Id @GeneratedValue private Long id;
 
   private BigDecimal totalPrice;
-  @OneToOne @JoinColumn(name = "user_id", unique = true) private User user;
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", unique = true)
+  private User user;
 
   @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<CartDetail> items;
