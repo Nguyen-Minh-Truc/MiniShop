@@ -4,13 +4,17 @@ import com.example.MiniShop.models.entity.Order;
 import com.example.MiniShop.models.entity.OrderDetail;
 import com.example.MiniShop.models.response.OrderCheckoutRes;
 import com.example.MiniShop.models.response.OrderItemCheckoutRes;
+import com.example.MiniShop.models.response.OrderItemRes;
+import com.example.MiniShop.models.response.OrderRes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OrderMapper {
-  public OrderCheckoutRes toCheckoutRes(Order order, List<String> promotionNames) {
+  public OrderCheckoutRes toCheckoutRes(Order order,
+                                        List<String> promotionNames) {
     if (order == null) {
       return null;
     }
@@ -45,6 +49,55 @@ public class OrderMapper {
       }
     }
     res.setItems(itemRes);
+    return res;
+  }
+
+  public OrderRes toDto(Order order) {
+    if (order == null) {
+      return null;
+    }
+
+    OrderRes res = new OrderRes();
+    res.setId(order.getId());
+    res.setStatus(order.getStatus());
+    res.setTotalPrice(order.getTotalPrice());
+    res.setCreatedAt(order.getCreatedAt());
+    res.setUpdatedAt(order.getUpdatedAt());
+    res.setExpiredAt(order.getExpiredAt());
+    res.setShippingAddress(order.getShipping_address());
+    res.setShippingPhone(order.getShipping_Phone());
+    res.setMethodPayment(order.getMethod_payment());
+
+    if (order.getUser() != null) {
+      res.setUserId(order.getUser().getId());
+      res.setUsername(order.getUser().getUsername());
+    }
+
+    if (order.getItems() != null) {
+      res.setItems(toItemDtoList(order.getItems()));
+    }
+
+    return res;
+  }
+
+  public List<OrderRes> toDtoList(List<Order> orders) {
+    return orders.stream().map(this::toDto).collect(Collectors.toList());
+  }
+
+  public List<OrderItemRes> toItemDtoList(List<OrderDetail> items) {
+    return items.stream().map(this::toItemDto).collect(Collectors.toList());
+  }
+
+  public OrderItemRes toItemDto(OrderDetail item) {
+    OrderItemRes res = new OrderItemRes();
+    res.setId(item.getId());
+    res.setQuantity(item.getQuantity());
+    res.setUnitPrice(item.getPrice());
+    res.setItemTotal(item.getTotalPrice());
+    res.setProductName(item.getProductName());
+    if (item.getProduct() != null) {
+      res.setProductId(item.getProduct().getId());
+    }
     return res;
   }
 }

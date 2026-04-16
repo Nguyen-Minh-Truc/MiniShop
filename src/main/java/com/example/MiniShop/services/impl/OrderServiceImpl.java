@@ -11,7 +11,11 @@ import com.example.MiniShop.models.entity.OrderDetail;
 import com.example.MiniShop.models.entity.Product;
 import com.example.MiniShop.models.entity.Promotion;
 import com.example.MiniShop.models.entity.User;
+import com.example.MiniShop.models.request.OrderPaymentReq;
+import com.example.MiniShop.models.response.ApiResponsePagination;
+import com.example.MiniShop.models.response.ApiResponsePagination.Meta;
 import com.example.MiniShop.models.response.OrderCheckoutRes;
+import com.example.MiniShop.models.response.OrderRes;
 import com.example.MiniShop.repository.CartRepository;
 import com.example.MiniShop.repository.InventoryRepository;
 import com.example.MiniShop.repository.OrderRepository;
@@ -28,6 +32,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -47,8 +53,8 @@ public class OrderServiceImpl implements OrderService {
       throws NotFoundException, ConflictException {
     User user = getCurrentUser();
     Cart cart = cartRepository.findByUserId(user.getId())
-                    .orElseThrow(() -> new ConflictException(
-                        "Giỏ hàng không tồn tại."));
+                    .orElseThrow(
+                        () -> new ConflictException("Giỏ hàng không tồn tại."));
 
     if (cart.getItems() == null || cart.getItems().isEmpty()) {
       throw new ConflictException("Giỏ hàng đang trống.");
@@ -73,10 +79,12 @@ public class OrderServiceImpl implements OrderService {
         throw new ConflictException("Số lượng sản phẩm phải lớn hơn 0.");
       }
 
-      Inventory inventory = inventoryRepository.findByProductId(product.getId())
-                                .orElseThrow(() -> new NotFoundException(
-                                    "Sản phẩm chưa có tồn kho: " +
-                                    product.getName()));
+      Inventory inventory =
+          inventoryRepository.findByProductId(product.getId())
+              .orElseThrow(
+                  ()
+                      -> new NotFoundException("Sản phẩm chưa có tồn kho: " +
+                                               product.getName()));
 
       int available = inventory.getStock() - inventory.getReserved_stock();
       if (available < cartItem.getQuantity()) {
@@ -85,9 +93,8 @@ public class OrderServiceImpl implements OrderService {
       }
 
       PromotionResult promotionResult = getBestPromotion(product.getId(), now);
-      BigDecimal basePrice = product.getPrice() == null
-                                 ? BigDecimal.ZERO
-                                 : product.getPrice();
+      BigDecimal basePrice =
+          product.getPrice() == null ? BigDecimal.ZERO : product.getPrice();
       BigDecimal finalUnitPrice = applyPromotion(basePrice, promotionResult);
       BigDecimal lineTotal =
           finalUnitPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
@@ -106,7 +113,7 @@ public class OrderServiceImpl implements OrderService {
                                   cartItem.getQuantity());
       inventoryRepository.save(inventory);
       inventoryRealtimeNotifier.notifyAvailability(product.getId(), inventory,
-                      "RESERVED");
+                                                   "RESERVED");
 
       orderTotal = orderTotal.add(lineTotal);
     }
@@ -121,36 +128,170 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   @Transactional
+  public OrderRes payOrder(Long id, OrderPaymentReq req)
+      throws NotFoundException, ConflictException {
+    Order order = orderRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("Đơn hàng không tồn tại."));
+
+    if (order.getStatus() != OrderStatus.PENDING) {
+      throw new ConflictException("Chỉ đơn hàng PENDING mới được thanh toán.");
+    }
+
+    String payment = req.getPaymentMethod() == null
+                         ? ""
+                         : req.getPaymentMethod().trim().toUpperCase();
+    if (!"CASH".equals(payment)) {
+      throw new ConflictException(
+          "Hiện chỉ hỗ trợ phương thức thanh toán CASH.");
+    }
+
+    order.setShipping_address(req.getShippingAddress());
+    order.setShipping_Phone(req.getShippingPhone());
+    order.setMethod_payment("CASH");
+    order.setStatus(OrderStatus.SHIPPING);
+    order.setExpiredAt(null);
+
+    Order saved = orderRepository.save(order);
+    return orderMapper.toDto(saved);
+  }
+
+  @Override
+  public ApiResponsePagination getMyOrders(Pageable pageable)
+      throws NotFoundException {
+    User user = getCurrentUser();
+    Page<Order> page = orderRepository.findAllByUserId(user.getId(), pageable);
+
+    Meta meta = new Meta();
+    meta.setPageCurrent(pageable.getPageNumber() + 1);
+    meta.setPageSize(pageable.getPageSize());
+    meta.setPages(page.getTotalPages());
+    meta.setTotal(page.getTotalElements());
+
+    ApiResponsePagination res = new ApiResponsePagination();
+    res.setMeta(meta);
+    res.setResult(orderMapper.toDtoList(page.getContent()));
+    return res;
+  }
+
+  @Override
+  public ApiResponsePagination getAllOrders(Pageable pageable) {
+    Page<Order> page = orderRepository.findAll(pageable);
+
+    Meta meta = new Meta();
+    meta.setPageCurrent(pageable.getPageNumber() + 1);
+    meta.setPageSize(pageable.getPageSize());
+    meta.setPages(page.getTotalPages());
+    meta.setTotal(page.getTotalElements());
+
+    ApiResponsePagination res = new ApiResponsePagination();
+    res.setMeta(meta);
+    res.setResult(orderMapper.toDtoList(page.getContent()));
+    return res;
+  }
+
+  @Override
+  public OrderRes getOrderDetail(Long id) throws NotFoundException {
+    Order order = orderRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("Đơn hàng không tồn tại."));
+    return orderMapper.toDto(order);
+  }
+
+  @Override
+  @Transactional
+  public OrderRes cancelOrder(Long id)
+      throws NotFoundException, ConflictException {
+    Order order = orderRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("Đơn hàng không tồn tại."));
+
+    if (order.getStatus() != OrderStatus.PENDING) {
+      throw new ConflictException("Chỉ đơn hàng PENDING mới được hủy.");
+    }
+
+    releaseReservedStock(order, "RELEASED");
+    order.setStatus(OrderStatus.CANCELLED);
+    order.setExpiredAt(null);
+    Order saved = orderRepository.save(order);
+    return orderMapper.toDto(saved);
+  }
+
+  @Override
+  @Transactional
+  public OrderRes markOrderSuccess(Long id)
+      throws NotFoundException, ConflictException {
+    Order order = orderRepository.findById(id).orElseThrow(
+        () -> new NotFoundException("Đơn hàng không tồn tại."));
+
+    if (order.getStatus() != OrderStatus.SHIPPING) {
+      throw new ConflictException("Chỉ đơn hàng SHIPPING mới được hoàn tất.");
+    }
+
+    if (order.getItems() != null) {
+      for (OrderDetail detail : order.getItems()) {
+        if (detail.getProduct() == null) {
+          continue;
+        }
+        Inventory inventory =
+            inventoryRepository.findByProductId(detail.getProduct().getId())
+                .orElseThrow(()
+                                 -> new NotFoundException(
+                                     "Không tìm thấy tồn kho của sản phẩm."));
+
+        int newStock = Math.max(0, inventory.getStock() - detail.getQuantity());
+        int newReserved =
+            Math.max(0, inventory.getReserved_stock() - detail.getQuantity());
+
+        inventory.setStock(newStock);
+        inventory.setReserved_stock(newReserved);
+        inventoryRepository.save(inventory);
+        inventoryRealtimeNotifier.notifyAvailability(
+            detail.getProduct().getId(), inventory, "SOLD");
+      }
+    }
+
+    order.setStatus(OrderStatus.SUCCESS);
+    order.setExpiredAt(null);
+    Order saved = orderRepository.save(order);
+    return orderMapper.toDto(saved);
+  }
+
+  @Override
+  @Transactional
   public void autoCancelExpiredPendingOrders() {
-    List<Order> expiredOrders = orderRepository.findAllByStatusAndExpiredAtLessThanEqual(
-        OrderStatus.PENDING, LocalDateTime.now());
+    List<Order> expiredOrders =
+        orderRepository.findAllByStatusAndExpiredAtLessThanEqual(
+            OrderStatus.PENDING, LocalDateTime.now());
 
     for (Order order : expiredOrders) {
-      if (order.getItems() != null) {
-        for (OrderDetail detail : order.getItems()) {
-          if (detail.getProduct() == null) {
-            continue;
-          }
-          inventoryRepository.findByProductId(detail.getProduct().getId())
-              .ifPresent(inventory -> {
-                int rollback = Math.max(0,
-                    inventory.getReserved_stock() - detail.getQuantity());
-                inventory.setReserved_stock(rollback);
-                inventoryRepository.save(inventory);
-                inventoryRealtimeNotifier.notifyAvailability(
-                    detail.getProduct().getId(), inventory, "RELEASED");
-              });
-        }
-      }
+      releaseReservedStock(order, "RELEASED");
       order.setStatus(OrderStatus.CANCELLED);
+      order.setExpiredAt(null);
       orderRepository.save(order);
     }
   }
 
+  private void releaseReservedStock(Order order, String eventType) {
+    if (order.getItems() == null) {
+      return;
+    }
+    for (OrderDetail detail : order.getItems()) {
+      if (detail.getProduct() == null) {
+        continue;
+      }
+      inventoryRepository.findByProductId(detail.getProduct().getId())
+          .ifPresent(inventory -> {
+            int rollback = Math.max(0, inventory.getReserved_stock() -
+                                           detail.getQuantity());
+            inventory.setReserved_stock(rollback);
+            inventoryRepository.save(inventory);
+            inventoryRealtimeNotifier.notifyAvailability(
+                detail.getProduct().getId(), inventory, eventType);
+          });
+    }
+  }
+
   private User getCurrentUser() throws NotFoundException {
-    String email = SecurityUtil.getCurrentUserLogin()
-                       .orElseThrow(() -> new NotFoundException(
-                           "Không tìm thấy thông tin đăng nhập."));
+    String email = SecurityUtil.getCurrentUserLogin().orElseThrow(
+        () -> new NotFoundException("Không tìm thấy thông tin đăng nhập."));
 
     User user = userRepository.findByEmail(email);
     if (user == null) {
@@ -161,8 +302,9 @@ public class OrderServiceImpl implements OrderService {
 
   private PromotionResult getBestPromotion(Long productId, LocalDateTime now) {
     List<Promotion> promotions =
-        promotionRepository.findAllByProductIdAndStatusAndStartAtLessThanEqualAndEndAtGreaterThanEqual(
-            productId, PromotionStatus.ACTIVE, now, now);
+        promotionRepository
+            .findAllByProductIdAndStatusAndStartAtLessThanEqualAndEndAtGreaterThanEqual(
+                productId, PromotionStatus.ACTIVE, now, now);
 
     PromotionResult result = new PromotionResult();
     result.discountedPrice = null;
@@ -181,7 +323,8 @@ public class OrderServiceImpl implements OrderService {
     return result;
   }
 
-  private BigDecimal applyPromotion(BigDecimal basePrice, PromotionResult promotionResult) {
+  private BigDecimal applyPromotion(BigDecimal basePrice,
+                                    PromotionResult promotionResult) {
     if (promotionResult.promotions.isEmpty()) {
       return basePrice;
     }
