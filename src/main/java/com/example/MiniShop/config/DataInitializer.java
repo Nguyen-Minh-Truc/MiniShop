@@ -25,7 +25,7 @@ public class DataInitializer implements CommandLineRunner {
   private static final String ROLE_CUSTOMER = "CUSTOMER";
   private static final String ROLE_SELLER = "SELLER";
   private static final String ROLE_ADMIN_SYSTEM = "ADMIN_SYSTEM";
-  private static final String ROLE_SUPER_ADMIN = "SUPER_ADMIN";
+  private static final String ROLE_SUPER_ADMIN = "ADMIN";
 
   private final PermissionRepository permissionRepository;
   private final RoleRepository roleRepository;
@@ -106,7 +106,7 @@ public class DataInitializer implements CommandLineRunner {
     createOrUpdateUser(ROLE_SELLER, "seller@gmail.com", "Seller");
     createOrUpdateUser(ROLE_ADMIN_SYSTEM, "admin_system@gmail.com",
                        "Admin System");
-    createOrUpdateUser(ROLE_SUPER_ADMIN, "super_admin@gmail.com",
+    createOrUpdateUser(ROLE_SUPER_ADMIN, "admin@gmail.com",
                        "Super Admin");
   }
 
@@ -309,7 +309,21 @@ public class DataInitializer implements CommandLineRunner {
                            "/api/v1/dashboard/orders/by-status", "GET",
                            "Dashboard"),
         new PermissionSeed("VIEW_REVENUE_STATS", "/api/v1/dashboard/revenue",
-                           "GET", "Dashboard"));
+               "GET", "Dashboard"),
+        new PermissionSeed("VIEW_TOP_PRODUCTS_STATS",
+               "/api/v1/dashboard/products/top", "GET",
+               "Dashboard"),
+        new PermissionSeed("VIEW_LOW_STOCK_STATS",
+               "/api/v1/dashboard/inventory/low-stock", "GET",
+               "Dashboard"),
+        new PermissionSeed("VIEW_PROFIT_STATS", "/api/v1/dashboard/profit",
+               "GET", "Dashboard"),
+        new PermissionSeed("VIEW_PURCHASE_COST_STATS",
+               "/api/v1/dashboard/purchase-cost", "GET",
+               "Dashboard"),
+        new PermissionSeed("VIEW_NEW_USERS_STATS",
+               "/api/v1/dashboard/users/new", "GET",
+               "Dashboard"));
   }
 
   private Set<String> customerPermissionNames() {
@@ -338,7 +352,10 @@ public class DataInitializer implements CommandLineRunner {
                "GET_ALL_USERS", "CREATE_USER", "GET_USER", "UPDATE_USER",
                "GET_ALL_ROLES", "CREATE_ROLE", "GET_ROLE", "UPDATE_ROLE",
                "GET_ALL_PERMISSIONS", "GET_PERMISSION", "VIEW_DASHBOARD_STATS",
-               "VIEW_ORDER_STATUS_STATS", "VIEW_REVENUE_STATS"));
+               "VIEW_ORDER_STATUS_STATS", "VIEW_REVENUE_STATS",
+               "VIEW_TOP_PRODUCTS_STATS", "VIEW_LOW_STOCK_STATS",
+               "VIEW_PROFIT_STATS", "VIEW_PURCHASE_COST_STATS",
+               "VIEW_NEW_USERS_STATS"));
   }
 
   private String buildPermissionKey(String apiPath, String method) {

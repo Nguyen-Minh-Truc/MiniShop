@@ -26,6 +26,8 @@ public class InventoryServiceImpl implements InventoryService {
   private final InventoryRepository inventoryRepository;
   private final ProductRepository productRepository;
   private final InventoryMapper inventoryMapper;
+  private final InventoryRealtimeNotifier inventoryRealtimeNotifier;
+  private final DashboardRealtimeNotifier dashboardRealtimeNotifier;
 
   @Override
   public ApiResponsePagination
@@ -65,6 +67,10 @@ public class InventoryServiceImpl implements InventoryService {
 
     Inventory savedInventory = this.inventoryRepository.save(
         this.inventoryMapper.toEntity(inventoryReq, product));
+    inventoryRealtimeNotifier.notifyAvailability(product.getId(),
+                           savedInventory,
+                           "INVENTORY_CREATED");
+    dashboardRealtimeNotifier.publishAll("INVENTORY_CREATED");
 
     return this.inventoryMapper.toDto(savedInventory);
   }
@@ -103,6 +109,10 @@ public class InventoryServiceImpl implements InventoryService {
     inventory.setProduct(product);
 
     Inventory updatedInventory = this.inventoryRepository.save(inventory);
+    inventoryRealtimeNotifier.notifyAvailability(product.getId(),
+                                                 updatedInventory,
+                                                 "INVENTORY_UPDATED");
+    dashboardRealtimeNotifier.publishAll("INVENTORY_UPDATED");
     return this.inventoryMapper.toDetailDto(updatedInventory);
   }
 

@@ -41,6 +41,7 @@ public class AuthController {
   private long refreshTokenExpiration;
 
   @PostMapping("/login")
+  @ApiMessage("Đăng nhập thành công.")
   public ResponseEntity<?> login(@Valid @RequestBody LoginReq loginReq) {
 
     // Nạp input gồm username/password vào Security

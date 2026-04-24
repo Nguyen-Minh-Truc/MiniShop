@@ -45,6 +45,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
   private final SupplierRepository supplierRepository;
   private final ProductRepository productRepository;
   private final InventoryRepository inventoryRepository;
+  private final DashboardRealtimeNotifier dashboardRealtimeNotifier;
+  private final InventoryRealtimeNotifier inventoryRealtimeNotifier;
 
   @Override
   public ApiResponsePagination
@@ -238,6 +240,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     po.setStatus(PurchaseOrderStatus.CONFIRMED);
     PurchaseOrder updatedPo = this.purchaseOrderRepository.save(po);
+    dashboardRealtimeNotifier.publishAll("PURCHASE_ORDER_CONFIRMED");
     return this.purchaseOrderMapper.toDtoDetail(updatedPo);
   }
 
@@ -254,6 +257,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     po.setStatus(PurchaseOrderStatus.CANCELED);
     PurchaseOrder updatedPo = this.purchaseOrderRepository.save(po);
+    dashboardRealtimeNotifier.publishAll("PURCHASE_ORDER_CANCELLED");
     return this.purchaseOrderMapper.toDtoDetail(updatedPo);
   }
 
@@ -299,6 +303,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
       inventory.setStock(inventory.getStock() + item.getQuantity());
       this.inventoryRepository.save(inventory);
+      inventoryRealtimeNotifier.notifyAvailability(product.getId(), inventory,
+                       "RESTOCKED");
 
       BigDecimal newSellingPrice =
           item.getCostPrice().multiply(PRICE_MULTIPLIER);
@@ -308,6 +314,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     po.setStatus(PurchaseOrderStatus.SUCCESS);
     PurchaseOrder updatedPo = this.purchaseOrderRepository.save(po);
+    dashboardRealtimeNotifier.publishAll("PURCHASE_ORDER_SUCCESS");
     return this.purchaseOrderMapper.toDtoDetail(updatedPo);
   }
 }

@@ -46,6 +46,7 @@ public class OrderServiceImpl implements OrderService {
   private final UserRepository userRepository;
   private final OrderMapper orderMapper;
   private final InventoryRealtimeNotifier inventoryRealtimeNotifier;
+  private final DashboardRealtimeNotifier dashboardRealtimeNotifier;
 
   @Override
   @Transactional
@@ -123,6 +124,7 @@ public class OrderServiceImpl implements OrderService {
     Order savedOrder = orderRepository.save(order);
 
     cartRepository.delete(cart);
+    dashboardRealtimeNotifier.publishAll("ORDER_CHECKOUT");
     return orderMapper.toCheckoutRes(savedOrder, promotionNames);
   }
 
@@ -147,6 +149,7 @@ public class OrderServiceImpl implements OrderService {
     order.setExpiredAt(null);
 
     Order saved = orderRepository.save(order);
+    dashboardRealtimeNotifier.publishAll("ORDER_PAID");
     return orderMapper.toDto(saved);
   }
 
@@ -206,6 +209,7 @@ public class OrderServiceImpl implements OrderService {
     order.setStatus(OrderStatus.CANCELLED);
     order.setExpiredAt(null);
     Order saved = orderRepository.save(order);
+    dashboardRealtimeNotifier.publishAll("ORDER_CANCELLED");
     return orderMapper.toDto(saved);
   }
 
@@ -246,6 +250,7 @@ public class OrderServiceImpl implements OrderService {
     order.setStatus(OrderStatus.SUCCESS);
     order.setExpiredAt(null);
     Order saved = orderRepository.save(order);
+    dashboardRealtimeNotifier.publishAll("ORDER_SUCCESS");
     return orderMapper.toDto(saved);
   }
 
@@ -261,6 +266,9 @@ public class OrderServiceImpl implements OrderService {
       order.setStatus(OrderStatus.CANCELLED);
       order.setExpiredAt(null);
       orderRepository.save(order);
+    }
+    if (!expiredOrders.isEmpty()) {
+      dashboardRealtimeNotifier.publishAll("ORDER_AUTO_CANCELLED");
     }
   }
 

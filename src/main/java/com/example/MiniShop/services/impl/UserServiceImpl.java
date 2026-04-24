@@ -11,11 +11,9 @@ import com.example.MiniShop.models.request.UserReqUpdate;
 import com.example.MiniShop.models.response.ApiResponsePagination;
 import com.example.MiniShop.models.response.ApiResponsePagination.Meta;
 import com.example.MiniShop.models.response.UserDto;
-import com.example.MiniShop.repository.ProductRepository;
 import com.example.MiniShop.repository.RoleRepository;
 import com.example.MiniShop.repository.UserRepository;
 import com.example.MiniShop.services.UserService;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +29,7 @@ public class UserServiceImpl implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
   private final RoleRepository roleRepository;
-  private final ProductRepository productRepository;
+  private final DashboardRealtimeNotifier dashboardRealtimeNotifier;
 
   public ApiResponsePagination fetchAllUser(Specification<User> specification,
                                             Pageable pageable) {
@@ -70,6 +68,7 @@ public class UserServiceImpl implements UserService {
     }
 
     User savedUser = this.userRepository.save(user);
+    dashboardRealtimeNotifier.publishAll("USER_CREATED");
     return this.userMapper.toDto(savedUser);
   }
 
@@ -84,6 +83,7 @@ public class UserServiceImpl implements UserService {
     user.setPassword(this.passwordEncoder.encode(userReq.getPassword()));
     user.setActive(true);
     User savedUser = this.userRepository.save(user);
+    dashboardRealtimeNotifier.publishAll("USER_REGISTERED");
     UserDto userRep = this.userMapper.toDto(savedUser);
     return userRep;
   }
@@ -125,6 +125,7 @@ public class UserServiceImpl implements UserService {
     }
 
     User savedUser = userRepository.save(user);
+    dashboardRealtimeNotifier.publishAll("USER_UPDATED");
     return userMapper.toDto(savedUser);
   }
 
